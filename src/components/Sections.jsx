@@ -80,22 +80,35 @@ function PeopleGroups({ people }) {
 }
 
 function Group({ title, people, associates = false }) {
+  const stories = associates ? [] : people.flatMap((person) => {
+    const parts = paragraphs(person.bio);
+    if (parts.length < 3) return [];
+    return [{ id: person.id, name: person.name, parts: parts.slice(1) }];
+  });
   return (
     <div>
       <h2 className="group-label">{title}</h2>
       <div className={associates ? "people-grid associates" : "people-grid"}>
-        {people.map((person) => <Person key={person.id} person={person} />)}
+        {people.map((person) => <Person key={person.id} person={person} summary={stories.some((story) => story.id === person.id)} />)}
       </div>
+      {stories.map((story) => (
+        <div className="founding-story" key={story.id}>
+          <p className="story-name">{story.name}</p>
+          {story.parts.map((paragraph) => <p key={paragraph.slice(0, 40)}>{paragraph}</p>)}
+        </div>
+      ))}
     </div>
   );
 }
 
-function Person({ person }) {
+function Person({ person, summary = false }) {
   const style = {
     "--px": `${person.photoX ?? 50}%`,
     "--py": `${person.photoY ?? 20}%`,
     "--zoom": person.photoZoom || 1,
   };
+  const parts = paragraphs(person.bio);
+  const shown = summary ? parts.slice(0, 1) : parts;
   return (
     <article className={person.photo ? "person" : "person no-photo"}>
       {person.photo ? (
@@ -111,7 +124,7 @@ function Person({ person }) {
         <h3>{person.name}</h3>
         <p className="role">{person.role}</p>
         <div className="prose">
-          {paragraphs(person.bio).map((paragraph) => <p key={paragraph.slice(0, 32)}>{paragraph}</p>)}
+          {shown.map((paragraph) => <p key={paragraph.slice(0, 32)}>{paragraph}</p>)}
         </div>
         <div className="link-row">
           {(person.links || []).filter((link) => link.href).map((link) => (
