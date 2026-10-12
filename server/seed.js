@@ -493,18 +493,39 @@ export function createSeed() {
         bio: "Dan Storer has built and led some of the UK’s leading investment and place promotion organisations, working at the centre of regional growth, international investment and economic development.\n\nHe has held senior roles at the West Midlands Growth Company and MIDAS in Greater Manchester, building high-performing teams and delivering trade and investment activity at scale.\n\nEarlier in his career, Dan worked internationally in the private sector, including with Rolls-Royce across its naval, nuclear and aerospace businesses, and with P&O Nedlloyd in international shipping and logistics. He has operated across Europe, the Middle East, Asia and the Americas, and has lived and worked in many of these markets, giving him a practical understanding of how organisations operate and compete globally.\n\nHis experience spans public and private sectors, operating across both sides of the investment landscape and at the interface between governments, regions, investors and global organisations — bringing together strategy, engagement and delivery to shape credible propositions, build relationships and turn ambition into outcomes.\n\nGlobal Place Partners reflects this approach: focused, commercially grounded and built around delivery. It was established to bridge the gap between international ambition and the ability to execute, applying this experience in a more direct, flexible and outcomes-focused way.",
         links: [{ label: "LinkedIn", href: "https://www.linkedin.com/in/danielfstorer/" }],
       },
-      person("rob-valentine", "Rob Valentine", "Founding Partner", "founding", 2),
-      person("sheona-southern", "Sheona Southern", "Senior Associate", "associate", 1),
-      person("phil-nell", "Phil Nell", "Senior Associate", "associate", 2),
-      person("james-turner", "James Turner", "Senior Associate", "associate", 3),
-      person("jamie-clyde", "Jamie Clyde", "Senior Associate", "associate", 4),
-      person("ben-odams", "Ben Odams", "Senior Associate", "associate", 5),
-      person("cliff-dennett", "Cliff Dennett", "Senior Associate", "associate", 6),
+      person("rob-valentine", "Rob Valentine", "Founding Partner", "founding", 2, {
+        photo: "/images/rob-valentine.jpg",
+        bio: "Real estate, regeneration and capital investment.\n\nBrings commercial property, regeneration and investment expertise from Bruntwood and regional economic development.",
+      }),
+      person("sheona-southern", "Sheona Southern", "Senior Associate", "associate", 1, {
+        photo: "/images/sheona-southern.jpg",
+        bio: "Place strategy, destination development and reputation.\n\nFormer Managing Director of Marketing Manchester, with extensive experience of place positioning, visitor economy and strategic partnerships.",
+      }),
+      person("phil-nell", "Phil Nell", "Senior Associate", "associate", 2, {
+        photo: "/images/phil-nell.jpg",
+        bio: "Capital investment, development feasibility and operating models.\n\nAdvises on development feasibility, capital requirements and investment structures, including partnerships, joint ventures and ownership models.",
+      }),
+      person("james-turner", "James Turner", "Senior Associate", "associate", 3, {
+        photo: "/images/james-turner.jpg",
+        bio: "Sector development and investment marketing.\n\nInternational B2B marketing and strategic sector propositions, including senior work at West Midlands Growth Company.",
+      }),
+      person("jamie-clyde", "Jamie Clyde", "Senior Associate", "associate", 4, {
+        photo: "/images/jamie-clyde.jpg",
+        bio: "Innovation ecosystems, clusters and business growth.\n\nHas developed innovation and business growth programmes through Innovation Birmingham, Bruntwood SciTech and West Midlands Growth Company.",
+      }),
+      person("ben-odams", "Ben Odams", "Senior Associate", "associate", 5, {
+        photo: "/images/ben-odams.jpg",
+        bio: "Economic strategy, labour markets and skills.\n\nConnects economic strategy, labour markets, skills and inclusive growth to practical delivery.",
+      }),
+      person("cliff-dennett", "Cliff Dennett", "Senior Associate", "associate", 6, {
+        photo: "/images/cliff-dennett.jpg",
+        bio: "Technology, entrepreneurship and scale-ups.\n\nEntrepreneur and commercial innovation specialist with experience of technology ventures, start-ups and scale-up ecosystems.",
+      }),
     ],
   };
 }
 
-function person(id, name, role, group, order) {
+function person(id, name, role, group, order, extra = {}) {
   return {
     id,
     name,
@@ -513,12 +534,13 @@ function person(id, name, role, group, order) {
     order,
     hidden: false,
     photo: "",
-    photoAlt: "",
+    photoAlt: name,
     photoX: 50,
-    photoY: 20,
+    photoY: 40,
     photoZoom: 1,
     bio: "",
     links: [],
+    ...extra,
   };
 }
 
