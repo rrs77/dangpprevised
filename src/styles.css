@@ -125,7 +125,11 @@ h3 { font-size: clamp(1.6rem, 2vw, 2rem); }
   align-items: start;
 }
 .hero-grid { align-items: center; grid-template-columns: 1.05fr 0.95fr; gap: 1.25rem 1.5rem; }
-.hero-art { background: #140e0a; }
+.hero-art { overflow: hidden; }
+#home-hero {
+  background:
+    radial-gradient(90% 130% at 86% 46%, #4a2e1e 0%, #1a120e 52%, #0e0c0b 100%);
+}
 .split-reverse .prose { order: 2; }
 .constellation {
   width: 100%;
@@ -133,6 +137,12 @@ h3 { font-size: clamp(1.6rem, 2vw, 2rem); }
   background: transparent;
   padding: 0;
   mix-blend-mode: normal;
+}
+.hero-grid .constellation {
+  width: 112%;
+  max-width: none;
+  justify-self: end;
+  margin-right: -8%;
 }
 
 .link-row { display: flex; flex-wrap: wrap; gap: 1.25rem 2rem; margin-top: 1.75rem; }
