@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.env.local
+data/cms.json
+data/cms.json.tmp
+data/media
+*.log
+.DS_Store
