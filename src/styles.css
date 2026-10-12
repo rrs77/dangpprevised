@@ -175,19 +175,20 @@ h3 { font-size: clamp(1.6rem, 2vw, 2rem); }
 .capability-list { list-style: none; padding: 0; margin: 2.5rem 0 0; display: grid; gap: 1rem; }
 .capability-list li { display: grid; grid-template-columns: 16rem 1fr; gap: 1rem; }
 
-.person { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1rem; align-items: start; }
+.person { display: grid; grid-template-columns: 1fr; gap: 0.85rem; align-items: start; }
 .person.no-photo { grid-template-columns: 1fr; }
 .portrait {
-  aspect-ratio: 1;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--cream);
-  border-radius: 1.15rem;
+  border-radius: 50%;
 }
 .portrait img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: inherit;
+  border-radius: 50%;
 }
 .person h3 { font-size: 1.35rem; }
 .person .prose { font-size: 0.98rem; line-height: 1.5; }
@@ -208,10 +209,21 @@ h3 { font-size: clamp(1.6rem, 2vw, 2rem); }
   text-transform: uppercase;
   color: var(--copper);
 }
-.people-grid { grid-template-columns: 1fr 1fr; gap: 1.75rem 2rem; margin-top: 0; }
-.people-grid.associates { grid-template-columns: repeat(3, 1fr); align-items: start; gap: 2rem 1.5rem; margin-top: 0.5rem; }
-.people-grid.associates .person { grid-template-columns: 1fr; gap: 0.85rem; }
-.people-grid.associates .portrait { aspect-ratio: 1; border-radius: 1.35rem; }
+.people-grid,
+.people-grid.associates {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 2rem 1.5rem;
+  margin-top: 0;
+}
+.people-grid .person,
+.people-grid.associates .person { grid-template-columns: 1fr; }
+.people-grid .portrait,
+.people-grid.associates .portrait {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+}
 .people-list { display: grid; gap: 2.75rem; }
 .cta-band h2 { font-size: clamp(1.7rem, 3vw, 2.35rem); }
 .cta-band .split { align-items: center; }
@@ -309,18 +321,23 @@ input, textarea, select { border-radius: 0.45rem; }
   .split, .hero-grid, .contact-grid, .insight-feature, .footer-grid, .admin-main, .capability-list li, .modes li, .people-grid {
     grid-template-columns: 1fr;
   }
-  .people-grid .person { grid-template-columns: 6.25rem 1fr; }
-  .people-grid.associates .person { grid-template-columns: 1fr; }
-  .people-grid.associates .portrait { width: min(100%, 18rem); }
-  .driver-grid, .people-grid.associates, .insight-grid { grid-template-columns: 1fr; }
+  .people-grid,
+  .people-grid.associates,
+  .driver-grid,
+  .insight-grid { grid-template-columns: 1fr; }
+  .people-grid .portrait,
+  .people-grid.associates .portrait {
+    width: min(100%, 16.5rem);
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+  }
   .band, .band-generous { padding: 2.6rem 0; }
-  .people-grid.associates .portrait { aspect-ratio: 1; border-radius: 1.15rem; }
   .constellation { margin: 0; }
   .cookie { flex-direction: column; align-items: stretch; }
   h1 { font-size: clamp(2.6rem, 12vw, 3.6rem); }
 }
 
 @media (min-width: 700px) and (max-width: 1020px) {
-  .driver-grid, .insight-grid, .people-grid.associates { grid-template-columns: 1fr 1fr; }
+  .driver-grid, .insight-grid, .people-grid, .people-grid.associates { grid-template-columns: 1fr 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
