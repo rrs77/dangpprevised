@@ -78,7 +78,7 @@ export default function Layout({ children }) {
       <footer className="site-footer">
         <div className="footer-inner footer-grid">
           <div>
-            <img src={settings.logo?.src} alt="" style={{ height: 42, width: "auto", background: "#f6f1e8", padding: "0.35rem 0.5rem" }} />
+            <img className="logo" src={settings.logo?.src} alt="" />
             <p>{settings.footer?.blurb}</p>
           </div>
           <div>

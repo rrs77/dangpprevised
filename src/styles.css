@@ -43,45 +43,48 @@ button, input, textarea, select { font: inherit; color: inherit; }
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(246, 241, 232, 0.94);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--line);
+  background: var(--green);
+  color: #f4efe6;
+  border-bottom: 0;
 }
 .header-inner, .wrap, .footer-inner {
   width: min(1120px, calc(100% - 2.5rem));
   margin: 0 auto;
 }
 .header-inner {
-  min-height: 5rem;
+  min-height: 4.1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
-.header-inner a img { height: 58px; width: auto; }
-.nav-desktop { display: flex; gap: 1.35rem; align-items: center; }
+.header-inner a img, .site-footer .logo { height: 34px; width: auto; background: transparent; padding: 0; }
+.nav-desktop { display: flex; gap: 1.15rem; align-items: center; }
 .nav-desktop a, .nav-mobile a {
   text-decoration: none;
-  font-size: 0.98rem;
+  font-size: 0.92rem;
   font-weight: 600;
+  color: #f4efe6;
 }
-.nav-desktop a[aria-current="page"] { color: var(--teal); box-shadow: inset 0 -2px 0 var(--copper); }
+.nav-desktop a[aria-current="page"] { color: #fff; box-shadow: inset 0 -2px 0 var(--copper); }
 .menu-toggle {
   display: none;
   background: transparent;
-  border: 1px solid var(--line);
-  padding: 0.45rem 0.7rem;
+  color: #f4efe6;
+  border: 1px solid rgba(244, 239, 230, 0.35);
+  padding: 0.4rem 0.65rem;
 }
 .nav-mobile {
   display: none;
-  border-top: 1px solid var(--line);
-  padding: 0.5rem 1.25rem 1.25rem;
+  background: var(--green);
+  border-top: 1px solid rgba(244, 239, 230, 0.16);
+  padding: 0.25rem 1.25rem 1rem;
 }
-.nav-mobile a { display: block; padding: 0.7rem 0; border-bottom: 1px solid var(--line); }
+.nav-mobile a { display: block; padding: 0.65rem 0; border-bottom: 1px solid rgba(244, 239, 230, 0.16); }
 
-.band { padding: 5.5rem 0; }
-.band-compact { padding: 3.25rem 0; }
-.band-generous { padding: 6.5rem 0; }
+.band { padding: 2.75rem 0; }
+.band-compact { padding: 1.75rem 0; }
+.band-generous { padding: 3.35rem 0; }
 .band-paper { background: var(--paper); }
 .band-cream { background: var(--cream); }
 .band-white { background: var(--white); }
@@ -116,17 +119,19 @@ h3 { font-size: clamp(1.6rem, 2vw, 2rem); }
 
 .split, .hero-grid {
   display: grid;
-  grid-template-columns: minmax(16rem, 0.9fr) minmax(18rem, 1.2fr);
-  gap: 3.5rem;
-  align-items: end;
+  grid-template-columns: minmax(16rem, 0.92fr) minmax(16rem, 1.08fr);
+  gap: 1.75rem 2rem;
+  align-items: start;
 }
-.hero-grid { align-items: center; grid-template-columns: 1.15fr 0.85fr; }
+.hero-grid { align-items: center; grid-template-columns: 1.05fr 0.95fr; gap: 1.25rem 1.5rem; }
+.hero-art { background: #140e0a; }
 .split-reverse .prose { order: 2; }
-.constellation { width: min(100%, 460px); margin-left: auto; mix-blend-mode: multiply; }
-.band-deep .constellation, .band-green .constellation {
+.constellation {
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  padding: 0;
   mix-blend-mode: normal;
-  background: #f6f1e8;
-  padding: 0.75rem;
 }
 
 .link-row { display: flex; flex-wrap: wrap; gap: 1.25rem 2rem; margin-top: 1.75rem; }
@@ -143,8 +148,8 @@ h3 { font-size: clamp(1.6rem, 2vw, 2rem); }
 .modes li {
   display: grid;
   grid-template-columns: 11rem 1fr;
-  gap: 1.5rem;
-  padding: 1.4rem 0;
+  gap: 1rem 1.5rem;
+  padding: 0.95rem 0;
   border-top: 1px solid var(--line);
 }
 .modes h3 { text-transform: uppercase; letter-spacing: 0.08em; font-size: 1rem; color: var(--copper); }
@@ -152,11 +157,11 @@ h3 { font-size: clamp(1.6rem, 2vw, 2rem); }
 
 .diagram-scroll {
   overflow-x: auto;
-  margin: 2rem 0 0.75rem;
-  background: #f7f1e7;
-  border: 1px solid var(--line);
+  margin: 1.25rem 0 0.5rem;
+  background: transparent;
+  border: 0;
 }
-.diagram-scroll img { min-width: 760px; width: 100%; }
+.diagram-scroll img { width: 100%; }
 .diagram-help { font-size: 0.95rem; }
 .driver-grid, .people-grid, .insight-grid {
   display: grid;
@@ -170,15 +175,16 @@ h3 { font-size: clamp(1.6rem, 2vw, 2rem); }
 .capability-list { list-style: none; padding: 0; margin: 2.5rem 0 0; display: grid; gap: 1rem; }
 .capability-list li { display: grid; grid-template-columns: 16rem 1fr; gap: 1rem; }
 
-.person { display: grid; grid-template-columns: 180px 1fr; gap: 1.4rem; align-items: start; }
+.person { display: grid; grid-template-columns: 88px 1fr; gap: 0.85rem; align-items: start; }
 .person.no-photo { grid-template-columns: 1fr; }
-.portrait { aspect-ratio: 4 / 5; overflow: hidden; background: var(--cream); }
+.portrait { aspect-ratio: 1; overflow: hidden; background: var(--cream); }
 .portrait img { width: 100%; height: 100%; object-fit: cover; }
-.person h3 { font-size: 1.7rem; }
-.role { color: var(--teal); font-weight: 700; margin: 0.25rem 0 0.8rem; }
-.group-label { margin: 2.5rem 0 1rem; }
-.people-grid { grid-template-columns: 1fr; }
+.person h3 { font-size: 1.2rem; }
+.role { color: var(--teal); font-weight: 700; margin: 0.15rem 0 0.4rem; font-size: 0.95rem; }
+.group-label { margin: 1.5rem 0 0.55rem; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; }
+.people-grid { grid-template-columns: 1fr 1fr; gap: 1.1rem 1.5rem; margin-top: 0.4rem; }
 .people-grid.associates { grid-template-columns: repeat(3, 1fr); align-items: start; }
+.people-grid.associates .person { grid-template-columns: 1fr; gap: 0.55rem; }
 
 .insight-feature { display: grid; grid-template-columns: 1.4fr 0.8fr; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--line); }
 .kicker { color: var(--copper); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
@@ -267,14 +273,14 @@ button.primary, .primary {
   .nav-desktop { display: none; }
   .menu-toggle { display: inline-flex; }
   .nav-mobile.open { display: block; }
-  .split, .hero-grid, .contact-grid, .insight-feature, .footer-grid, .admin-main, .person, .capability-list li, .modes li {
+  .split, .hero-grid, .contact-grid, .insight-feature, .footer-grid, .admin-main, .person, .capability-list li, .modes li, .people-grid {
     grid-template-columns: 1fr;
   }
   .driver-grid, .people-grid.associates, .insight-grid { grid-template-columns: 1fr; }
+  .band, .band-generous { padding: 2.4rem 0; }
   .constellation { margin: 0; }
   .cookie { flex-direction: column; align-items: stretch; }
   h1 { font-size: clamp(2.6rem, 12vw, 3.6rem); }
-  .band, .band-generous { padding: 3.5rem 0; }
 }
 
 @media (min-width: 700px) and (max-width: 1020px) {

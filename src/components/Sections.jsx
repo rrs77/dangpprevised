@@ -324,8 +324,9 @@ export default function Sections({ sections }) {
     }
     const titleAs = section.type === "hero" ? "h1" : "h2";
     const splitCopy = (section.layout === "split" || section.layout === "split-reverse") && !section.image;
+    const art = section.type === "hero" && section.image ? " hero-art" : "";
     return (
-      <section key={section.id} id={section.id} className={bandClass(section)}>
+      <section key={section.id} id={section.id} className={`${bandClass(section)}${art}`}>
         <div className={`wrap ${section.type === "hero" && section.image ? "hero-grid" : layout}`}>
           {splitCopy ? (
             <>
