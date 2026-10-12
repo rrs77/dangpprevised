@@ -6,12 +6,12 @@ function bandClass(section) {
   return `band band-${section.spacing || "normal"} band-${section.background || "paper"}`;
 }
 
-function Heading({ text, as: Tag = "h2" }) {
+function Heading({ text, as: Tag = "h2", accent = true }) {
   const lines = String(text || "").split("\n");
   return (
     <Tag>
       {lines.map((line, index) => (
-        <span key={index} className={index > 0 ? "accent-line" : undefined}>
+        <span key={index} className={accent && index > 0 ? "accent-line" : undefined}>
           {line}
           {index < lines.length - 1 ? <br /> : null}
         </span>
@@ -47,7 +47,7 @@ function Copy({ section, titleAs = "h2" }) {
   return (
     <div>
       {section.eyebrow ? <p className="eyebrow">{section.eyebrow}</p> : null}
-      {section.heading ? <Heading text={section.heading} as={titleAs} /> : null}
+      {section.heading ? <Heading text={section.heading} as={titleAs} accent={section.accentLines !== false} /> : null}
       {section.subheading ? <p className="support">{section.subheading}</p> : null}
       <div className="prose" style={{ marginTop: "1.25rem" }}>
         {paragraphs(section.body).map((paragraph) => <p key={paragraph.slice(0, 40)} className="muted">{paragraph}</p>)}
@@ -72,10 +72,10 @@ function PeopleGroups({ people }) {
   const founding = people.filter((person) => person.group === "founding" && !person.hidden).sort((a, b) => a.order - b.order);
   const associates = people.filter((person) => person.group !== "founding" && !person.hidden).sort((a, b) => a.order - b.order);
   return (
-    <>
+    <div className="people-list">
       <Group title="Founding Partners" people={founding} />
       <Group title="Senior Associates" people={associates} associates />
-    </>
+    </div>
   );
 }
 
@@ -325,14 +325,15 @@ export default function Sections({ sections }) {
     const titleAs = section.type === "hero" ? "h1" : "h2";
     const splitCopy = (section.layout === "split" || section.layout === "split-reverse") && !section.image;
     const art = section.type === "hero" && section.image ? " hero-art" : "";
+    const cta = section.type === "cta" ? " cta-band" : "";
     return (
-      <section key={section.id} id={section.id} className={`${bandClass(section)}${art}`}>
+      <section key={section.id} id={section.id} className={`${bandClass(section)}${art}${cta}`}>
         <div className={`wrap ${section.type === "hero" && section.image ? "hero-grid" : layout}`}>
           {splitCopy ? (
             <>
               <div>
                 {section.eyebrow ? <p className="eyebrow">{section.eyebrow}</p> : null}
-                {section.heading ? <Heading text={section.heading} as={titleAs} /> : null}
+                {section.heading ? <Heading text={section.heading} as={titleAs} accent={section.accentLines !== false} /> : null}
                 {section.subheading ? <p className="support">{section.subheading}</p> : null}
               </div>
               <div>
