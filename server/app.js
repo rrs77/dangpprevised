@@ -16,6 +16,7 @@ import {
   getPublished,
   getRecipient,
   initStore,
+  storageMode,
   listInsights,
   listMedia,
   listRevisions,
@@ -115,7 +116,7 @@ app.use(async (_req, _res, next) => {
 });
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true });
+  res.json({ ok: true, storage: storageMode() });
 });
 
 app.get("/api/config", (_req, res) => {

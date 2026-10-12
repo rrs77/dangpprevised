@@ -3,12 +3,31 @@ import fs from "node:fs";
 import path from "node:path";
 import { blankState } from "./seed.js";
 
-const dataDir = path.join(process.cwd(), "data");
-const mediaDir = path.join(dataDir, "media");
-const filePath = path.join(dataDir, "cms.json");
+let dataDir = path.join(process.cwd(), "data");
+let mediaDir = path.join(dataDir, "media");
+let filePath = path.join(dataDir, "cms.json");
+let memoryState = null;
 
 let pool = null;
 let queue = Promise.resolve();
+
+function remember(dir) {
+  dataDir = dir;
+  mediaDir = path.join(dir, "media");
+  filePath = path.join(dir, "cms.json");
+}
+
+function directoryIsWritable(dir) {
+  try {
+    fs.mkdirSync(path.join(dir, "media"), { recursive: true });
+    const probe = path.join(dir, ".write-probe");
+    fs.writeFileSync(probe, "ok");
+    fs.unlinkSync(probe);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function enqueue(fn) {
   const job = queue.then(fn, fn);
@@ -18,7 +37,9 @@ function enqueue(fn) {
 
 async function read() {
   if (!pool) {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    if (filePath && fs.existsSync(filePath)) return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    if (!memoryState) memoryState = blankState();
+    return memoryState;
   }
   const result = await pool.query("select data from cms_state where id = 'current'");
   return result.rows[0].data;
@@ -26,10 +47,16 @@ async function read() {
 
 async function write(state) {
   if (!pool) {
-    fs.mkdirSync(dataDir, { recursive: true });
-    const tmp = `${filePath}.tmp`;
-    fs.writeFileSync(tmp, JSON.stringify(state));
-    fs.renameSync(tmp, filePath);
+    memoryState = state;
+    if (!filePath) return;
+    try {
+      fs.mkdirSync(dataDir, { recursive: true });
+      const tmp = `${filePath}.tmp`;
+      fs.writeFileSync(tmp, JSON.stringify(state));
+      fs.renameSync(tmp, filePath);
+    } catch (error) {
+      console.error("Content file could not be saved; keeping this copy in memory.", error.message);
+    }
     return;
   }
   await pool.query(
@@ -145,27 +172,68 @@ function slugify(value) {
   return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "page";
 }
 
-export async function initStore() {
-  fs.mkdirSync(mediaDir, { recursive: true });
-  if (process.env.DATABASE_URL) {
-    const pg = await import("pg");
-    const connectionString = process.env.DATABASE_URL;
-    const ssl = connectionString.includes("sslmode=require") || process.env.DATABASE_SSL === "true"
-      ? { rejectUnauthorized: false }
-      : undefined;
-    pool = new pg.default.Pool({ connectionString, max: 5, ssl });
-    await migrate(pool);
-    const existing = await pool.query("select id from cms_state where id = 'current'");
-    if (existing.rowCount === 0) {
-      let state = blankState();
-      state = await importLegacy(state);
-      await write(state);
-    }
+function sslFor(connectionString) {
+  if (process.env.DATABASE_SSL === "false" || connectionString.includes("sslmode=disable")) return undefined;
+  const local = /@(localhost|127\.0\.0\.1)([:/]|$)/.test(connectionString);
+  if (local) return undefined;
+  if (connectionString.includes("sslmode=require") || process.env.DATABASE_SSL === "true" || process.env.VERCEL) {
+    return { rejectUnauthorized: false };
+  }
+  return undefined;
+}
+
+async function initDatabase() {
+  const pg = await import("pg");
+  const connectionString = process.env.DATABASE_URL;
+  pool = new pg.default.Pool({
+    connectionString,
+    max: 1,
+    connectionTimeoutMillis: 8000,
+    ssl: sslFor(connectionString),
+  });
+  await migrate(pool);
+  const existing = await pool.query("select id from cms_state where id = 'current'");
+  if (existing.rowCount === 0) {
+    let state = blankState();
+    state = await importLegacy(state);
+    await write(state);
+  }
+}
+
+function initFileStore() {
+  const candidates = process.env.VERCEL
+    ? ["/tmp/gpp-data"]
+    : [path.join(process.cwd(), "data"), "/tmp/gpp-data"];
+  for (const dir of candidates) {
+    if (!directoryIsWritable(dir)) continue;
+    remember(dir);
+    if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, JSON.stringify(blankState()));
     return;
   }
-  if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, JSON.stringify(blankState()));
+  filePath = null;
+  if (!memoryState) memoryState = blankState();
+}
+
+export function storageMode() {
+  if (pool) return "postgres";
+  if (filePath) return "file";
+  return "memory";
+}
+
+export async function initStore() {
+  if (process.env.DATABASE_URL) {
+    try {
+      await initDatabase();
+      return;
+    } catch (error) {
+      console.error("Postgres unavailable; serving the built-in site content.", error.message);
+      if (pool) {
+        await pool.end().catch(() => {});
+        pool = null;
+      }
+    }
   }
+  initFileStore();
 }
 
 export function getDraft() {
