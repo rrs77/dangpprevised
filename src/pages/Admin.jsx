@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-const TYPES = ["hero", "text", "modes", "diagram", "people", "insights", "contact", "cta"];
-const BACKGROUNDS = ["paper", "cream", "white", "deep", "green"];
+const TYPES = ["hero", "text", "modes", "diagram", "diagnostic", "people", "insights", "contact", "cta"];
+const BACKGROUNDS = ["paper", "cream", "white", "sage", "deep", "green", "pine", "teal"];
 const FONTS = ["Outfit", "Source Sans 3", "Fraunces", "Libre Franklin", "Manrope"];
 
 async function api(url, options = {}) {
@@ -245,6 +245,12 @@ function SectionEditor({ section, onChange, onDuplicate, onDelete, media }) {
       <Field label="Heading" value={section.heading} onChange={(value) => set("heading", value)} area />
       <Field label="Supporting line" value={section.subheading} onChange={(value) => set("subheading", value)} />
       <Field label="Body" value={section.body} onChange={(value) => set("body", value)} area />
+      {section.type === "diagnostic" && (
+        <>
+          <Field label="Note under the questions" value={section.note || ""} onChange={(value) => set("note", value)} area />
+          <Field label="Result line" value={section.result || ""} onChange={(value) => set("result", value)} area />
+        </>
+      )}
       <Field label="Image address" value={section.image} onChange={(value) => set("image", value)} />
       <MediaSelect media={media} onPick={(url) => set("image", url)} />
       <Field label="Image description" value={section.imageAlt} onChange={(value) => set("imageAlt", value)} />
@@ -256,8 +262,8 @@ function SectionEditor({ section, onChange, onDuplicate, onDelete, media }) {
       <label><span>Spacing</span><select value={section.spacing} onChange={(event) => set("spacing", event.target.value)}><option>compact</option><option>normal</option><option>generous</option></select></label>
       <label><span>Layout</span><select value={section.layout} onChange={(event) => set("layout", event.target.value)}><option>stack</option><option>split</option><option>split-reverse</option></select></label>
       <label className="check"><input type="checkbox" checked={!!section.hidden} onChange={(event) => set("hidden", event.target.checked)} /> Hide section</label>
-      {(section.type === "modes" || section.type === "diagram") && (
-        <ItemEditor items={section.items || []} onChange={(items) => set("items", items)} diagram={section.type === "diagram"} />
+      {(section.type === "modes" || section.type === "diagram" || section.type === "diagnostic" || section.type === "text") && (
+        <ItemEditor items={section.items || []} onChange={(items) => set("items", items)} diagram={section.type === "diagram"} labelled={section.type === "diagnostic"} />
       )}
       <div style={{ display: "flex", gap: "0.5rem" }}>
         <button type="button" onClick={onDuplicate}>Duplicate section</button>
@@ -267,7 +273,7 @@ function SectionEditor({ section, onChange, onDuplicate, onDelete, media }) {
   );
 }
 
-function ItemEditor({ items, onChange, diagram }) {
+function ItemEditor({ items, onChange, diagram, labelled }) {
   function update(index, key, value) {
     const next = items.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item);
     onChange(next);
@@ -285,6 +291,7 @@ function ItemEditor({ items, onChange, diagram }) {
               </select>
             </label>
           )}
+          {labelled && <Field label="Label" value={item.label || ""} onChange={(value) => update(index, "label", value)} />}
           <Field label="Title" value={item.title} onChange={(value) => update(index, "title", value)} />
           <Field label="Text" value={item.text} onChange={(value) => update(index, "text", value)} area />
           <button type="button" onClick={() => onChange(items.filter((_, itemIndex) => itemIndex !== index))}>Remove item</button>
@@ -327,7 +334,7 @@ function PeopleEditor({ people, patch, media }) {
           </div>
         ))}
         <button type="button" onClick={() => patch((next) => {
-          const created = { id: uid("person"), name: "New person", role: "Senior Associate", group: "associate", order: next.people.length + 1, hidden: false, photo: "", photoAlt: "", photoX: 50, photoY: 20, photoZoom: 1, bio: "", links: [] };
+          const created = { id: uid("person"), name: "New person", role: "Senior Associate", group: "associate", order: next.people.length + 1, hidden: false, photo: "", photoAlt: "", photoX: 50, photoY: 30, photoZoom: 1, specialism: "", bio: "", links: [] };
           next.people.push(created);
           setId(created.id);
         })}>Add person</button>
@@ -339,10 +346,12 @@ function PeopleEditor({ people, patch, media }) {
           <label><span>Group</span>
             <select value={person.group} onChange={(event) => set("group", event.target.value)}>
               <option value="founding">Founding Partners</option>
+              <option value="principal">Principals</option>
               <option value="associate">Senior Associates</option>
             </select>
           </label>
-          <Field label="Biography" value={person.bio} onChange={(value) => set("bio", value)} area />
+          <Field label="Specialism line" value={person.specialism || ""} onChange={(value) => set("specialism", value)} />
+          <Field label="Biography (first paragraph shows on the card; the rest opens under Read full biography)" value={person.bio} onChange={(value) => set("bio", value)} area />
           <Field label="Portrait address" value={person.photo} onChange={(value) => set("photo", value)} />
           <MediaSelect media={media} onPick={(url) => set("photo", url)} />
           <Field label="Portrait description" value={person.photoAlt} onChange={(value) => set("photoAlt", value)} />

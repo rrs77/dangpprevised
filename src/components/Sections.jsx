@@ -68,71 +68,90 @@ function InsightLink({ item, children }) {
   return <Link className="text-link" to={href}>{children}</Link>;
 }
 
+const PEOPLE_GROUPS = [
+  { key: "founding", title: "Founding Partners", columns: 2 },
+  { key: "principal", title: "Principals", columns: 2 },
+  { key: "associate", title: "Senior Associates", columns: 3 },
+];
+
 function PeopleGroups({ people }) {
-  const founding = people.filter((person) => person.group === "founding" && !person.hidden).sort((a, b) => a.order - b.order);
-  const associates = people.filter((person) => person.group !== "founding" && !person.hidden).sort((a, b) => a.order - b.order);
+  const visible = people.filter((person) => !person.hidden);
+  const known = new Set(PEOPLE_GROUPS.map((group) => group.key));
   return (
     <div className="people-list">
-      <Group title="Founding Partners" people={founding} />
-      <Group title="Senior Associates" people={associates} associates />
+      {PEOPLE_GROUPS.map((group) => {
+        const members = visible
+          .filter((person) => (known.has(person.group) ? person.group : "associate") === group.key)
+          .sort((a, b) => a.order - b.order);
+        if (!members.length) return null;
+        return <Group key={group.key} title={group.title} people={members} columns={group.columns} />;
+      })}
     </div>
   );
 }
 
-function Group({ title, people, associates = false }) {
-  const stories = associates ? [] : people.flatMap((person) => {
-    const parts = paragraphs(person.bio);
-    if (parts.length < 3) return [];
-    return [{ id: person.id, name: person.name, parts: parts.slice(1) }];
-  });
+function Group({ title, people, columns }) {
   return (
-    <div>
+    <section className="people-group" aria-label={title}>
       <h2 className="group-label">{title}</h2>
-      <div className={associates ? "people-grid associates" : "people-grid"}>
-        {people.map((person) => <Person key={person.id} person={person} summary={stories.some((story) => story.id === person.id)} />)}
+      <div className={columns === 3 ? "people-grid three" : "people-grid"}>
+        {people.map((person) => <Person key={person.id} person={person} />)}
       </div>
-      {stories.map((story) => (
-        <div className="founding-story" key={story.id}>
-          <p className="story-name">{story.name}</p>
-          {story.parts.map((paragraph) => <p key={paragraph.slice(0, 40)}>{paragraph}</p>)}
-        </div>
-      ))}
-    </div>
+    </section>
   );
 }
 
-function Person({ person, summary = false }) {
-  const style = {
-    "--px": `${person.photoX ?? 50}%`,
-    "--py": `${person.photoY ?? 20}%`,
-    "--zoom": person.photoZoom || 1,
-  };
+function Person({ person }) {
+  const x = person.photoX ?? 50;
+  const y = person.photoY ?? 30;
   const parts = paragraphs(person.bio);
-  const shown = summary ? parts.slice(0, 1) : parts;
+  const [summary, ...more] = parts;
+  const links = (person.links || []).filter((link) => link.href);
   return (
     <article className={person.photo ? "person" : "person no-photo"}>
       {person.photo ? (
-        <div className="portrait" style={style}>
+        <div className="portrait">
           <img
             src={person.photo}
-            alt={person.photoAlt || person.name}
-            style={{ objectPosition: `${person.photoX ?? 50}% ${person.photoY ?? 20}%`, transform: `scale(${person.photoZoom || 1})`, transformOrigin: `${person.photoX ?? 50}% ${person.photoY ?? 20}%` }}
+            alt={person.photoAlt ? `Portrait of ${person.photoAlt}` : `Portrait of ${person.name}`}
+            loading="lazy"
+            style={{ objectPosition: `${x}% ${y}%`, transform: `scale(${person.photoZoom || 1})`, transformOrigin: `${x}% ${y}%` }}
           />
         </div>
       ) : null}
-      <div>
-        <h3>{person.name}</h3>
+      <div className="person-content">
         <p className="role">{person.role}</p>
-        <div className="prose">
-          {shown.map((paragraph) => <p key={paragraph.slice(0, 32)}>{paragraph}</p>)}
-        </div>
-        <div className="link-row">
-          {(person.links || []).filter((link) => link.href).map((link) => (
-            <a key={link.href} className="text-link" href={link.href} target="_blank" rel="noreferrer">{link.label || "Link"}</a>
-          ))}
-        </div>
+        <h3>{person.name}</h3>
+        {person.specialism ? <p className="specialism">{person.specialism}</p> : null}
+        {summary ? <p className="person-summary">{summary}</p> : null}
+        {more.length ? (
+          <details className="person-more">
+            <summary>Read full biography <span aria-hidden="true">↗</span></summary>
+            <div className="prose">
+              {more.map((paragraph) => <p key={paragraph.slice(0, 32)}>{paragraph}</p>)}
+            </div>
+          </details>
+        ) : null}
+        {links.length ? (
+          <div className="person-links">
+            {links.map((link) => (
+              <a key={link.href} className="person-link" href={link.href} target="_blank" rel="noopener noreferrer" aria-label={`${person.name} on ${link.label || "LinkedIn"}`}>
+                {link.label || "Link"} <span aria-hidden="true">↗</span>
+              </a>
+            ))}
+          </div>
+        ) : null}
       </div>
     </article>
+  );
+}
+
+function Capabilities({ items }) {
+  if (!items?.length) return null;
+  return (
+    <ul className="capabilities" aria-label="Connected areas of economic development">
+      {items.map((item) => <li key={item.id}>{item.title}</li>)}
+    </ul>
   );
 }
 
@@ -322,15 +341,56 @@ export default function Sections({ sections }) {
       );
     }
     if (section.type === "modes") {
+      const intro = section.layout === "split" ? (
+        <div className="split work-intro">
+          <div>
+            {section.eyebrow ? <p className="eyebrow">{section.eyebrow}</p> : null}
+            {section.heading ? <Heading text={section.heading} accent={section.accentLines !== false} /> : null}
+          </div>
+          <div className="prose work-lead">
+            {paragraphs(section.body).map((paragraph) => <p key={paragraph.slice(0, 40)} className="muted">{paragraph}</p>)}
+          </div>
+        </div>
+      ) : <Copy section={{ ...section, linkLabel: "", link2Label: "" }} />;
       return (
         <section key={section.id} id={section.id} className={bandClass(section)}>
           <div className="wrap">
-            <Copy section={section} />
-            <ol className="modes">
+            {intro}
+            <ol className={section.layout === "split" ? "modes modes-rows" : "modes"}>
               {(section.items || []).map((item) => (
                 <li key={item.id}><h3>{item.title}</h3><p>{item.text}</p></li>
               ))}
             </ol>
+            <Links section={section} />
+          </div>
+        </section>
+      );
+    }
+    if (section.type === "diagnostic") {
+      return (
+        <section key={section.id} id={section.id} className={`${bandClass(section)} diagnostic`}>
+          <div className="wrap">
+            {section.eyebrow ? <p className="eyebrow">{section.eyebrow}</p> : null}
+            {section.heading ? <Heading text={section.heading} accent={section.accentLines !== false} /> : null}
+            <div className="prose diagnostic-lead">
+              {paragraphs(section.body).map((paragraph) => <p key={paragraph.slice(0, 40)} className="muted">{paragraph}</p>)}
+            </div>
+            <div className="questions">
+              {(section.items || []).map((item) => (
+                <article className="question" key={item.id}>
+                  {item.label ? <p className="question-label">{item.label}</p> : null}
+                  <h3>{item.title}</h3>
+                  <p className="muted">{item.text}</p>
+                </article>
+              ))}
+            </div>
+            {section.note ? <p className="diagnostic-note muted">{section.note}</p> : null}
+            {section.result || section.linkLabel ? (
+              <div className="diagnostic-result">
+                {section.result ? <p className="muted">{renderResult(section.result)}</p> : <span />}
+                <Links section={section} />
+              </div>
+            ) : null}
           </div>
         </section>
       );
@@ -354,6 +414,7 @@ export default function Sections({ sections }) {
                   {paragraphs(section.body).map((paragraph) => <p key={paragraph.slice(0, 48)} className="muted">{paragraph}</p>)}
                 </div>
                 <Links section={section} />
+                <Capabilities items={section.items} />
               </div>
             </>
           ) : (
@@ -366,6 +427,12 @@ export default function Sections({ sections }) {
       </section>
     );
   });
+}
+
+function renderResult(text) {
+  const match = /^([^:]{1,40}:)(.*)$/s.exec(text);
+  if (!match) return text;
+  return <><strong>{match[1]}</strong>{match[2]}</>;
 }
 
 export function ArticleView({ item }) {
